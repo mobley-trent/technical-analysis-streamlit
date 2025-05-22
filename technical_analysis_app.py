@@ -21,7 +21,13 @@ def get_sp500_components():
 
 @st.cache_data
 def load_data(symbol, start, end):
-    return yf.download(symbol, start, end)
+    data = yf.download(symbol, start, end)
+    data = data.stack(level="Ticker")
+    data.index.names = ["Date", "Ticker"]
+    data = data[["Open", "High", "Low", "Close", "Volume"]]
+    data = data.swaplevel(0, 1)
+    data = data.sort_index()
+    return data
 
 @st.cache_data
 def convert_df_to_csv(df):
